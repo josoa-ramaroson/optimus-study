@@ -1,26 +1,41 @@
-import React from "react";
+'use client';
+
+import React, { useEffect, useState } from "react";
 import { Thermometer, Droplet, Sun, Volume2 } from "lucide-react";
-
-// Interface Sensor avec 4 mesures
-export interface Sensor {
-  humidity: number;
-  temperature: number;
-  light: number;
-  sound: number;
-  timestamp: string;
-}
-
-// Exemple de données
-const testSensors: Sensor[] = [
-  { humidity: 45, temperature: 22.5, light: 300, sound: 75, timestamp: "2025-08-04T10:00:00Z" },
-  { humidity: 50, temperature: 23.0, light: 350, sound: 80, timestamp: "2025-08-04T12:00:00Z" },
-  { humidity: 48, temperature: 22.8, light: 320, sound: 78, timestamp: "2025-08-05T08:00:00Z" },
-];
+import SensorService, { ISensorData } from "../services/SensorService";
 
 const HistorySensors: React.FC = () => {
+  const [sensors, setSensors] = useState<ISensorData[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchSensors = async () => {
+      try {
+        const {data}= await SensorService.getAll();
+        setSensors(data);
+      } catch (err: any) {
+        console.error(err);
+        setError(err.message || "Erreur lors du chargement");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchSensors();
+  }, []);
+
+  if (loading) {
+    return <p className="p-4">Chargement des données des capteurs…</p>;
+  }
+
+  if (error) {
+    return <p className="p-4 text-red-600">Erreur : {error}</p>;
+  }
+
   return (
-    <div className="p-4">
-      <h2 className="text-xl font-semibold mb-4">Historique des capteurs</h2>
+    <div >
+     
       <div className="overflow-x-auto">
         <table className="min-w-full table-auto border-collapse">
           <thead className="bg-gray-100 ">
@@ -53,13 +68,21 @@ const HistorySensors: React.FC = () => {
             </tr>
           </thead>
           <tbody>
-            {testSensors.map((sensor) => (
-              <tr key={sensor.timestamp} className="border-t dark:border-gray-600">
-                <td className="px-4 py-2">{new Date(sensor.timestamp).toLocaleString()}</td>
-                <td className="px-4 py-2 text-center">{sensor.temperature} °C</td>
-                <td className="px-4 py-2 text-center">{sensor.humidity} %</td>
-                <td className="px-4 py-2 text-center">{sensor.light} Lux</td>
-                <td className="px-4 py-2 text-center">{sensor.sound} dB</td>
+            {sensors.map((sensor) => (
+              <tr
+                key={sensor.recorded_at}
+                className="border-t dark:border-gray-600"
+              >
+                <td className="px-4 py-2">
+                  {new Date(sensor.recorded_at).toLocaleString()}
+                </td>
+                
+                <td className="px-4 py-2 text-center">
+                  { sensor.payload.temperature} °C
+                </td>
+                <td className="px-4 py-2 text-center">{ sensor.payload.humidity} %</td>
+                <td className="px-4 py-2 text-center">{ sensor.payload.light} Lux</td>
+                <td className="px-4 py-2 text-center">{ sensor.payload.sound} dB</td>
               </tr>
             ))}
           </tbody>

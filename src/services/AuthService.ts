@@ -1,10 +1,15 @@
 import { IUserInfo } from '@/store/authStore';
 import axios from '../utils/axios'; 
 
-
+export type TLoginResponse = {
+  status: number;
+  userInfo: IUserInfo;
+  token: string
+}
 export default class AuthService {
-  static async login(email: string, password: string): Promise<IUserInfo> {
+  static async login(email: string, password: string): Promise<TLoginResponse> {
     const res = await axios.post('/auth/login', { email, password });
+    
     return res.data;
   }
 

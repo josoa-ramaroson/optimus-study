@@ -21,7 +21,7 @@ export default function ProfilePage() {
       <div className="space-y-4">
         <div>
           <h3 className="font-medium text-gray-700">ID :</h3>
-          <p className="text-gray-900">{user.id}</p>
+          <p className="text-gray-900">{user.userId}</p>
         </div>
         <div>
           <h3 className="font-medium text-gray-700">Email :</h3>

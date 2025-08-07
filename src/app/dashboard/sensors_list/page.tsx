@@ -1,30 +1,66 @@
-"use client"
+'use client';
 
-import React, { useEffect } from 'react';
-import SensorList from '@/components/SensorList';
+import React, { useEffect, useState } from 'react';
 import { useAuthStore } from '@/store/authStore';
 import { useRouter } from 'next/navigation';
-import { ArrowLeftIcon } from 'lucide-react';
 import Link from 'next/link';
-import { Sensor } from '@/services/SensorService';
+import { ArrowLeftIcon } from 'lucide-react';
 import HistorySensors from '@/components/HistorySensors';
+import Spinner from '@/components/Spinner';
+import {SensorList} from '@/components/SensorList';
+import SensorService, { ISensorData, ILatestSensorResponse } from '@/services/SensorService';
 
 export default function SensorListPage() {
   const { user } = useAuthStore();
-  // const router = useRouter();
+  const router = useRouter();
 
-  // useEffect(() => {
-  //   if (!user) router.push('/login');
-  // }, [user, router]);
+  const [latest, setLatest] = useState<ISensorData | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
 
-  const mockSensorHistory: Sensor[] = [
-    { id: '1', type: 'temperature', value: 22.5, timestamp: '2025-08-05T14:30:00Z', status: 'ok' },
-    { id: '2', type: 'humidity',    value: 55,   timestamp: '2025-08-05T14:25:00Z', status: 'ok' },
-    { id: '3', type: 'light',       value: 300,  timestamp: '2025-08-05T14:20:00Z' },
-    { id: '4', type: 'sound',       value: 35,   timestamp: '2025-08-05T14:15:00Z', status: 'warning' },
-    { id: '5', type: 'temperature', value: 23,   timestamp: '2025-08-05T14:10:00Z', status: 'ok' },
-    { id: '6', type: 'humidity',    value: 50,   timestamp: '2025-08-05T14:05:00Z' },
-  ];
+  // Redirect if not authenticated
+  useEffect(() => {
+    if (!user) {
+      router.push('/login');
+    }
+  }, [user, router]);
+
+  // Fetch latest sensor data on mount
+  useEffect(() => {
+    const fetchLatest = async () => {
+      setLoading(true);
+      setError(null);
+      setSuccess(null);
+      try {
+        const resp: ILatestSensorResponse = await SensorService.getLatestByDeviceId('esp32_multi_sensor');
+        if (resp.status === 200 && resp.data) {
+          setLatest(resp.data as ISensorData);
+          setSuccess('Données chargées avec succès');
+        } else {
+          setError(resp.message || 'Aucune donnée trouvée');
+        }
+      } catch (err: any) {
+        setError(err.message || 'Erreur lors de la récupération');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchLatest();
+  }, []);
+
+  // Clear messages after 4s
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (success) timer = setTimeout(() => setSuccess(null), 4000);
+    return () => clearTimeout(timer);
+  }, [success]);
+
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (error) timer = setTimeout(() => setError(null), 4000);
+    return () => clearTimeout(timer);
+  }, [error]);
 
   return (
     <div className="max-w-4xl mx-auto p-6 space-y-8">
@@ -38,7 +74,19 @@ export default function SensorListPage() {
 
       <section className="bg-white shadow rounded-lg p-6">
         <h2 className="text-xl font-semibold mb-4">Liste des capteurs</h2>
-        <SensorList />
+
+        {loading ? (
+          <div className="flex justify-center py-8">
+            <Spinner />
+          </div>
+        ) : error ? (
+          <div className="text-red-600 font-medium">Erreur : {error}</div>
+        ) : success ? (
+          <div className="text-green-600 font-medium">Succès : {success}</div>
+        ) : null}
+
+        {/* Display latest data when available */}
+        {!loading && latest && <SensorList latest={latest} />}
       </section>
 
       <section className="bg-white shadow rounded-lg p-6">

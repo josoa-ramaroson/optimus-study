@@ -1,25 +1,30 @@
 'use client';
 
 import React, { useState } from 'react';
-import AuthService from '@/services/AuthService';
+import AuthService, { TLoginResponse } from '@/services/AuthService';
 import { useAuthStore, IUserInfo } from '@/store/authStore';
 import { useRouter } from 'next/navigation';
 import { LogIn, ShieldCheck, Activity, GaugeCircle } from 'lucide-react';
+
 
 export default function LoginForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
-  const { setUser } = useAuthStore();
+  const { setUser, setToken } = useAuthStore();
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const user: IUserInfo = await AuthService.login(email, password);
-      setUser(user);
+      const {
+        userInfo, token, status
+      }:TLoginResponse = await AuthService.login(email, password);
+      setUser(userInfo);
+      setToken(token);
       router.push('/dashboard');
     } catch (err: any) {
+      console.error('Login failed:', err);
       setError('Identifiants invalides');
     }
   };
@@ -84,7 +89,7 @@ export default function LoginForm() {
 
         <button
           type="submit"
-          className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition font-medium"
+          className="w-full bg-blue-600 text-white cursor-pointer py-3 rounded-lg hover:bg-blue-700 transition font-medium"
         >
           Connexion
         </button>

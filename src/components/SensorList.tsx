@@ -1,62 +1,36 @@
-"use client"
+'use client';
 
-import React, { useEffect } from 'react';
-import {useSensorStore} from '../store/sensorStore';
-import SensorService, { Sensor } from '../services/SensorService';
-import SensorCard from './SensorCard';
-import Spinner from './Spinner';
+import React, { useEffect, useState } from 'react';
+import { ISensorData } from '@/services/SensorService';
+import { Thermometer, Droplet, Sun, Volume2 } from 'lucide-react';
 
-export default function SensorList() {
-  // const { data, loading, setData } = useSensorStore();
-  const data: Sensor[] =  [
-    {
-      id: "sensor-1",
-      name: "Capteur Température",
-      type: "temperature",
-      value: 22.5,
-      status: "Actif",
-      timestamp: "2025-08-05T08:00:00Z"
-    },
-    {
-      id: "sensor-2",
-      name: "Capteur Humidité",
-      type: "humidity",
-      value: 55,
-      status: "Inactif",
-      timestamp: "2025-08-05T07:45:00Z"
-    },
-    {
-      id: "sensor-3",
-      name: "Capteur Lumière",
-      type: "light",
-      value: 400, 
-      status: "Actif",
-      timestamp: "2025-08-05T07:30:00Z"
-    },
-    {
-      id: "sensor-4",
-      name: "Capteur son",
-      type: "sound",
-      value: 400, 
-      status: "Actif",
-      timestamp: "2025-08-05T07:30:00Z"
-    }
-  ]
-
-  // useEffect(() => {
-  //   SensorService.getAll()
-  //     .then(sensors => setData(sensors))
-  //     .catch(console.error);
-  // }, [setData]);
-
-  // if (loading) return <Spinner />;
-
+// Composant dédié pour l'affichage des dernières valeurs
+interface LatestGridProps {
+  latest: ISensorData;
+}
+export function SensorList({ latest }: LatestGridProps) {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {data.map(sensor => (
-        <SensorCard key={sensor.id} sensor={sensor} />
-      ))}
+    <div className="grid grid-cols-2 sm:grid-cols-4 gap-6">
+      <div className="flex flex-col items-center">
+        <Thermometer className="w-6 h-6 text-red-500 mb-1" />
+        <span className="font-medium">{latest.payload.temperature} °C</span>
+        <span className="text-sm text-gray-500">Température</span>
+      </div>
+      <div className="flex flex-col items-center">
+        <Droplet className="w-6 h-6 text-blue-500 mb-1" />
+        <span className="font-medium">{latest.payload.humidity} %</span>
+        <span className="text-sm text-gray-500">Humidité</span>
+      </div>
+      <div className="flex flex-col items-center">
+        <Sun className="w-6 h-6 text-yellow-500 mb-1" />
+        <span className="font-medium">{latest.payload.light} Lux</span>
+        <span className="text-sm text-gray-500">Luminosité</span>
+      </div>
+      <div className="flex flex-col items-center">
+        <Volume2 className="w-6 h-6 text-green-500 mb-1" />
+        <span className="font-medium">{latest.payload.sound} dB</span>
+        <span className="text-sm text-gray-500">Son</span>
+      </div>
     </div>
   );
 }
-

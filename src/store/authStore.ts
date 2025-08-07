@@ -2,9 +2,16 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
 export interface IUserInfo {
-  id: string;
-  name: string;
+  userId: string;
+  username: string;
   email: string;
+  
+  has_asmathic: boolean,
+  has_bronchite_chronique: boolean,
+  has_diabete: boolean,
+  has_hypertension: boolean,
+  has_allergies: boolean,
+  has_migraine: boolean,
   // add any other fields you need to persist about the user
 }
 

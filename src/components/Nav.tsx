@@ -2,22 +2,29 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { LayoutDashboard, Settings, LogOut, Menu, X, SmartphoneIcon, ActivityIcon, HistoryIcon } from 'lucide-react';
+import { useAuthStore } from '@/store/authStore';
 
 export default function Nav() {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
-
+  const router = useRouter()
+  const { logout } = useAuthStore(); // Assuming you have a logout function in your auth store
   const links = [
     { href: '/dashboard', label: 'Dashboard', icon: <LayoutDashboard size={18} /> },
-    { href: '/dashboard/sensors_list', label: 'Liste des capteurs', icon: <ActivityIcon size={18} /> },
+    { href: '/dashboard/sensors_list', label: 'Données des capteurs', icon: <ActivityIcon size={18} /> },
     { href: '/dashboard/history', label: 'Historique', icon: <HistoryIcon size={18} /> },
     
 ];
 
   const toggleMenu = () => setIsOpen(prev => !prev);
 
+  const handleLogout = () => {
+    logout();
+    setIsOpen(false);
+    router.push('/login'); // Redirect to login after logout
+  };
   return (
     <>
       {/* Top bar */}
@@ -45,7 +52,13 @@ export default function Nav() {
             </Link>
           ))}
 
-  
+        <button
+              onClick={() => {handleLogout();}}
+              className="text-red-600 flex items-center space-x-3 cursor-pointer hover:text-red-800 transition-colors"
+            >
+            <LogOut size={18} />
+            <span>Déconnexion</span>
+          </button>
         </div>
       </nav>
 
@@ -78,7 +91,13 @@ export default function Nav() {
             </Link>
           ))}
 
-          
+          <button
+              onClick={() => {handleLogout();}}
+              className="text-red-600 flex items-center space-x-3 cursor-pointer hover:text-red-800 transition-colors"
+            >
+            <LogOut size={18} />
+            <span>Déconnexion</span>
+          </button>
         </div>
       </aside>
     </>

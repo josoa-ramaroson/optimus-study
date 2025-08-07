@@ -1,12 +1,12 @@
 // src/store/sensorStore.ts
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { Sensor } from '../services/SensorService';
+import { ISensorData } from '../services/SensorService';
 
 export interface SensorState {
-  data: Sensor[];
+  data: ISensorData[];
   loading: boolean;
-  setData: (d: Sensor[]) => void;
+  setData: (d: ISensorData[]) => void;
 }
 
 export const useSensorStore = create<SensorState>()(
