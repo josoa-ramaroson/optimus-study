@@ -10,7 +10,6 @@ const instance = axios.create({
 instance.interceptors.request.use(config => {
   // Récupère le token depuis ton store
   const token = useAuthStore.getState().token
-
   if (token && config.headers) {
     config.headers.Authorization = `Bearer ${token}`
   }

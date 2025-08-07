@@ -8,6 +8,7 @@ export type TLoginResponse = {
 }
 export default class AuthService {
   static async login(email: string, password: string): Promise<TLoginResponse> {
+     
     const res = await axios.post('/auth/login', { email, password });
     
     return res.data;

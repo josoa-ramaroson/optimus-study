@@ -17,14 +17,15 @@ export default function LoginForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+     const dataResponse:TLoginResponse = await AuthService.login(email, password);
       const {
         userInfo, token, status
-      }:TLoginResponse = await AuthService.login(email, password);
+      } = dataResponse; 
+      console.log('Login successful:', userInfo);
       setUser(userInfo);
       setToken(token);
-      router.push('/dashboard');
+      // router.push('/dashboard');
     } catch (err: any) {
-      console.error('Login failed:', err);
       setError('Identifiants invalides');
     }
   };

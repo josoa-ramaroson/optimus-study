@@ -12,7 +12,6 @@ export interface IUserInfo {
   has_hypertension: boolean,
   has_allergies: boolean,
   has_migraine: boolean,
-  // add any other fields you need to persist about the user
 }
 
 interface AuthState {
